@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="weibogrep" default="compile" basedir=".">
+    <property name="lib.dir" value="lib" />
+    <property name="src.dir" value="src" />
+    <property name="bin.dir" value="bin" />
+    <property name="tomcat.home" value="/usr/share/tomcat7" />
+    <property name="tomcat.lib" value="${tomcat.home}/lib" />
+    <property name="tomcat.webapp" value="${tomcat.home}/webapps" />
+
+    <path id="classpath">
+        <pathelement path="${lib.dir}" />
+        <fileset dir="${lib.dir}" includes="**/*.jar" ></fileset>
+    </path>
+
+    <path id="tomcat">
+        <pathelement path="${tomcat.lib}"/>
+        <fileset dir="${tomcat.lib}" includes="**/*.jar" />
+    </path>
+
+    <target name="compile">
+        <javac srcdir="${src.dir}" destdir="${bin.dir}" includeantruntime="false">
+            <classpath refid="classpath" />
+            <classpath refid="tomcat" />
+        </javac>
+    </target>
+
+</project>
