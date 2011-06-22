@@ -3,7 +3,7 @@
 TOMCAT=/usr/share/tomcat7
 WEBAPP=${TOMCAT}/webapps
 WEB=WebContent
-ROOT=${WEBAPP}/ROOT
+ROOT=${WEBAPP}/chart
 BIN=/tmp/bin
 
 if [ ! -d $BIN ];then

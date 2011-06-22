@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<apps>
+	<app index="1">
+		<name>VisualSearch</name>
+		<description>Visualise your search result</description>
+		<logo>static/img/logo.jpg</logo>
+		<version>0.1</version>
+		<title>Title: Visual Search</title>
+		<pages>
+			<page>
+				<type>big</type>
+				<path>debug.html</path>
+				<width>300</width>
+				<height>300</height>
+			</page>
+			<page>
+				<type>medium</type>
+				<path>debug.html</path>
+				<width>300</width>
+				<height>100</height>
+			</page>
+			<page>
+				<type>small</type>
+				<path>debug.html</path>
+				<width>300</width>
+				<height>100</height>
+			</page>
+		</pages>
+
+		<authors>
+			<author>
+				<name>朱文雷</name>
+				<email>zhuwl08@gmail.com</email>
+				<note>zTrix</note>
+			</author>
+			<author>
+				<name>许春旭</name>
+				<email>xucx08@gmail.com</email>
+				<note>春哥</note>
+			</author>
+		</authors>
+
+	</app>
+</apps>

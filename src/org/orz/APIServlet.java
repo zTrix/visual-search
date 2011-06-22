@@ -1,5 +1,7 @@
 package org.orz;
 
+import org.orz.util.*;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
@@ -23,21 +25,10 @@ import org.json.JSONObject;
 public class APIServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    /**
-     * Default constructor.
-     */
-    public APIServlet() {
-        // TODO Auto-generated constructor stub
-    }
+    public APIServlet() { }
 
-    /**
-     * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
-     *      response)
-     */
     @SuppressWarnings("deprecation")
-    protected void doGet(HttpServletRequest request,
-            HttpServletResponse response) throws ServletException, IOException {
-        // TODO Auto-generated method stub
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String[] paths = request.getRequestURI().split("/");
 
         response.setContentType("application/json");
@@ -48,30 +39,47 @@ public class APIServlet extends HttpServlet {
         int endyear = Integer.parseInt(request.getParameter("endyear"));
         String detail = request.getParameter("detail");
         int result[] = new int[endyear - startyear + 1];
-        int detail_info[][] = new int[endyear - startyear + 1][5000];
+        int detail_info[][] = new int[endyear - startyear + 1][100];
+
+        String api = null;
+        if (paths[2].equalsIgnoreCase("api")) {
+            if (paths.length > 3) {
+                api = paths[3];
+            }
+        } else {
+            for (int i = 0; i < paths.length; i++) {
+                if (paths[i].equalsIgnoreCase("api")) {
+                    if (i < paths.length - 1) {
+                        api = paths[i+1];
+                    }
+                }
+            }
+        }
+        if (null == api) {
+            response.getWriter().write("{\"err\":-1, \"msg\":\"cannot get api\"}");
+            return;
+        }
 
         try {
-
-            if (paths[2].equalsIgnoreCase("SearchConf")) {
+            if (api.equalsIgnoreCase("SearchConf")) {
                 url = url + "search-publication?";
                 String q = request.getParameter("conf");
-                url = url + "q=" + q + "&u=oyster&start=1&num=5000";
-
-                JSONObject tmp = new JSONObject(HttpTest.sendURL(url));
+                url = url + "q=" + q + "&u=tangwb06&start=1&num=100";
+                String rs = HttpTest.sendURL(url);
+                response.getWriter().write(rs);
+                if (rs != null) return;
+                JSONObject tmp = new JSONObject(rs);
                 JSONArray papers = tmp.getJSONArray("Results");
                 for (int i = 0; i < papers.length(); i++) {
                     if (papers.getJSONObject(i).has("Jconfname")) {
-                        String confname = (papers.getJSONObject(i))
-                                .getString("Jconfname");
+                        String confname = (papers.getJSONObject(i)).getString("Jconfname");
                         if (confname.contains(q)) {
                             JSONObject cur_paper = papers.getJSONObject(i);
                             if (cur_paper.has("Pubyear")) {
                                 int cur_year = cur_paper.getInt("Pubyear");
-                                if (cur_year >= startyear
-                                        && cur_year <= endyear) {
+                                if (cur_year >= startyear && cur_year <= endyear) {
                                     if (cur_paper.has("Citedby")) {
-                                        result[cur_year - startyear] += cur_paper
-                                                .getInt("Citedby");
+                                        result[cur_year - startyear] += cur_paper.getInt("Citedby");
                                         detail_info[cur_year - startyear][i] = 1;
                                     }
                                 }
@@ -91,31 +99,30 @@ public class APIServlet extends HttpServlet {
                                 lable++;
                             }
                         }
-                        result_array.put(
-                                i,
-                                new JSONObject().put("detail", detail_papers)
-                                        .put("number", result[i])
-                                        .put("year", i + startyear));
-                    } else
+                        result_array.put(i,
+                                         new JSONObject().put("detail", detail_papers)
+                                                         .put("number", result[i])
+                                                         .put("year", i + startyear));
+                    } else {
                         result_array.put(
                                 i,
                                 new JSONObject().put("number", result[i]).put(
                                         "year", i + startyear));
+                    }
                 }
-
-                PrintWriter out = response.getWriter();
-                result_array.write(out);
-            } else if (paths[2].equalsIgnoreCase("SearchExpert")) {
+                new JSONObject().put("err", 0)
+                                .put("result", result_array)
+                                .write(response.getWriter());
+            } else if (api.equalsIgnoreCase("SearchExpert")) {
                 url = url + "person/";
                 String q = request.getParameter("name");
-                url = url + URLEncoder.encode(q) + "?u=oyster&o=ttf";
+                url = url + URLEncoder.encode(q) + "?u=zTrix&o=ttf";
                 String tmp_string = HttpTest.sendURL(url);
 
                 int start = tmp_string.indexOf("[");
                 int end = tmp_string.lastIndexOf("]");
                 String tmp_str = tmp_string.substring(start + 1, end);
                 JSONObject tmp = new JSONObject(tmp_str);
-                ;
 
                 JSONArray papers = tmp.getJSONArray("PubList");
                 for (int i = 0; i < papers.length(); i++) {
@@ -157,22 +164,20 @@ public class APIServlet extends HttpServlet {
 
                 PrintWriter out = response.getWriter();
                 result_array.write(out);
+            } else {
+                new JSONObject().put("err", -3)
+                                .put("msg", "no such api: " + api)
+                                .write(response.getWriter());
             }
 
         } catch (JSONException e) {
-            // TODO Auto-generated catch block
+            response.getWriter().write("{\"err\":-2,\"msg\":\"json exception\",\"desc\":\"" + Stringer.escapeStringForJson(e.getMessage()) + "\",\"req_url\":\"" + Stringer.escapeStringForJson(url) + "\"}");
             e.printStackTrace();
         }
-
+        response.getWriter().flush();
     }
 
-    /**
-     * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
-     *      response)
-     */
-    protected void doPost(HttpServletRequest request,
-            HttpServletResponse response) throws ServletException, IOException {
-        // TODO Auto-generated method stub
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         doGet(request, response);
     }
 

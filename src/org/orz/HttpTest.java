@@ -15,6 +15,7 @@ import org.json.JSONArray;
 public class HttpTest {
 
     public static String sendURL(String urlStr) {
+    	System.out.println("send url : " + urlStr);
         URL url;
         String result = new String();
         String tmp = new String();
