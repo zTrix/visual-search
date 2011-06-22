@@ -1,0 +1,34 @@
+
+#wrapper {
+    width: 560px;
+    margin: auto;
+}
+
+#wrapper #search {
+    margin: 30px auto;
+}
+
+#wrapper #graph {
+    width: 500px;
+    height: 300px;
+    margin: 0 auto;
+}
+
+#input_wrapper {
+    border-color: #000;
+}
+
+#wrapper #query_input {
+    margin: auto;
+    width: 230px;
+    padding: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    font-size: 20px;
+}
+
+#search input[type=submit] {
+    width: 63px;
+    height: 32px;
+    margin-left: 10px;
+}

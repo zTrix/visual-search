@@ -1,6 +1,7 @@
 package org.orz;
 
 import org.orz.util.*;
+import org.orz.data.*;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -34,12 +35,7 @@ public class APIServlet extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        String url = "http://arnetminer.org/services/";
-        int startyear = Integer.parseInt(request.getParameter("startyear"));
-        int endyear = Integer.parseInt(request.getParameter("endyear"));
-        String detail = request.getParameter("detail");
-        int result[] = new int[endyear - startyear + 1];
-        int detail_info[][] = new int[endyear - startyear + 1][100];
+        String url = "http://arnetminer.org/services";
 
         String api = null;
         if (paths[2].equalsIgnoreCase("api")) {
@@ -62,7 +58,13 @@ public class APIServlet extends HttpServlet {
 
         try {
             if (api.equalsIgnoreCase("SearchConf")) {
-                url = url + "search-publication?";
+                int startyear = Integer.parseInt(request.getParameter("startyear"));
+                int endyear = Integer.parseInt(request.getParameter("endyear"));
+                String detail = request.getParameter("detail");
+                int result[] = new int[endyear - startyear + 1];
+                int detail_info[][] = new int[endyear - startyear + 1][100];
+
+                url = url + "/search-publication?";
                 String q = request.getParameter("conf");
                 url = url + "q=" + q + "&u=tangwb06&start=1&num=100";
                 String rs = HttpTest.sendURL(url);
@@ -113,57 +115,54 @@ public class APIServlet extends HttpServlet {
                 new JSONObject().put("err", 0)
                                 .put("result", result_array)
                                 .write(response.getWriter());
-            } else if (api.equalsIgnoreCase("SearchExpert")) {
-                url = url + "person/";
-                String q = request.getParameter("name");
-                url = url + URLEncoder.encode(q) + "?u=zTrix&o=ttf";
+            } else if (api.equalsIgnoreCase("person")) {
+                int startyear = Integer.parseInt(request.getParameter("start_year"));
+                int endyear = Integer.parseInt(request.getParameter("end_year"));
+                int num = endyear - startyear + 1;
+                
+                int []pubNum = new int[num];
+                int []citeNum = new int[num];
+
+                String q = request.getParameter("q");
+                url = url + "/person/" + URLEncoder.encode(q) + "?u=tangwb06&o=ttf";
                 String tmp_string = HttpTest.sendURL(url);
+                JSONArray tmp = new JSONArray(tmp_string);
+                JSONObject person = null;
+                if (tmp.length() > 0) {
+                    person = tmp.getJSONObject(0);
+                } else {
+                    new JSONObject().put("err", -100)
+                                    .put("msg", "no result")
+                                    .write(response.getWriter());
+                    return;
+                }
 
-                int start = tmp_string.indexOf("[");
-                int end = tmp_string.lastIndexOf("]");
-                String tmp_str = tmp_string.substring(start + 1, end);
-                JSONObject tmp = new JSONObject(tmp_str);
-
-                JSONArray papers = tmp.getJSONArray("PubList");
+                JSONArray papers = person.getJSONArray("PubList");
                 for (int i = 0; i < papers.length(); i++) {
-                    if (papers.getJSONObject(i).has("Pubyear")) {
-                        JSONObject cur_paper = papers.getJSONObject(i);
+                    JSONObject cur_paper = papers.getJSONObject(i);
+                    if (cur_paper.has("Pubyear")) {
                         int pubyear = cur_paper.getInt("Pubyear");
-                        if (pubyear >= startyear && pubyear <= endyear) {
+                        if (pubyear <= endyear && pubyear >= startyear) {
+                            pubNum[pubyear - startyear]++;
                             if (cur_paper.has("Citedby")) {
-                                result[pubyear - startyear] += cur_paper
-                                        .getInt("Citedby");
-                                detail_info[pubyear - startyear][i] = 1;
+                                citeNum[pubyear - startyear] += cur_paper.getInt("Citedby");
                             }
                         }
                     }
                 }
-                JSONArray result_array = new JSONArray();
-                for (int i = 0; i < endyear - startyear + 1; i++) {
-                    if (detail.equals("true")) {
-                        JSONArray detail_papers = new JSONArray();
-                        int lable = 0;
-                        for (int j = 0; j < papers.length(); j++) {
-                            if (detail_info[i][j] == 1) {
-                                detail_papers.put(lable,
-                                        papers.getJSONObject(j));
-                                lable++;
-                            }
-                        }
-                        result_array.put(
-                                i,
-                                new JSONObject().put("detail", detail_papers)
-                                        .put("number", result[i])
-                                        .put("year", i + startyear));
-                    } else
-                        result_array.put(
-                                i,
-                                new JSONObject().put("number", result[i]).put(
-                                        "year", i + startyear));
-                }
+                JSONArray result = new JSONArray();
+                result.put(new JSONObject().put("name", "Publication Number")
+                                           .put("data", new JSONArray(pubNum))
+                );
+                result.put(new JSONObject().put("name", "Citation Number")
+                                           .put("data", new JSONArray(citeNum))
+                );
 
-                PrintWriter out = response.getWriter();
-                result_array.write(out);
+                new JSONObject().put("err", 0)
+                                .put("data", result)
+                                .put("name", person.getString("Name"))
+                                .put("photo", person.getString("PictureUrl"))
+                                .write(response.getWriter());
             } else {
                 new JSONObject().put("err", -3)
                                 .put("msg", "no such api: " + api)
