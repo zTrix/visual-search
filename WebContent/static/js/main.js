@@ -67,12 +67,15 @@
         $('#search').submit(function(e) {
             e.preventDefault();
             if ($('#query_input').val().length == 0) return;
+            $('#loading').css('opacity', 1);
             if ($('#type').val() == 'people') {
                 API.person({
                     q: $('#query_input').val(),
                     start_year: end_year - total_year + 1,
                     end_year: end_year
                 }).success(function(r) {
+                    $('#graph').css('opacity', 1);
+                    $('#loading').css('opacity', 0);
                     create_chart({
                         title: r.name,
                         subtitle: 'personal publication and citation number trend',
@@ -87,6 +90,8 @@
                     start_year: end_year - total_year + 1,
                     end_year: end_year
                 }).success(function(r) {
+                    $('#graph').css('opacity', 1);
+                    $('#loading').css('opacity', 0);
                     create_chart({
                         title: query,
                         subtitle: 'publication and citation number trend',
@@ -109,6 +114,7 @@
     };
 
     $(document).ready(function() {
+        $('#loading').css('opacity', 0);
         attach_event();
     });
     
