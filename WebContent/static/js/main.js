@@ -21,8 +21,8 @@
             chart: {
                renderTo: 'graph',
                defaultSeriesType: 'line',
-               marginRight: 130,
-               marginBottom: 25
+               marginRight: 50,
+               marginBottom: 35
             },
             title: {
                text: defaults.title,
@@ -67,18 +67,44 @@
         $('#search').submit(function(e) {
             e.preventDefault();
             if ($('#query_input').val().length == 0) return;
-            API.person({
-                q: $('#query_input').val(),
-                start_year: end_year - total_year + 1,
-                end_year: end_year
-            }).success(function(r) {
-                create_chart({
-                    title: r.name,
-                    subtitle: 'personal publication and citation number trend',
-                    data: r.data,
-                    categories: categories
+            if ($('#type').val() == 'people') {
+                API.person({
+                    q: $('#query_input').val(),
+                    start_year: end_year - total_year + 1,
+                    end_year: end_year
+                }).success(function(r) {
+                    create_chart({
+                        title: r.name,
+                        subtitle: 'personal publication and citation number trend',
+                        data: r.data,
+                        categories: categories
+                    });
                 });
-            });
+            } else if ($('#type').val() == 'publication') {
+                var query = $('#query_input').val();
+                API.publication({
+                    q: query,
+                    start_year: end_year - total_year + 1,
+                    end_year: end_year
+                }).success(function(r) {
+                    create_chart({
+                        title: query,
+                        subtitle: 'publication and citation number trend',
+                        data: r.data,
+                        categories: categories
+                    });
+                });
+            }
+        });
+
+        $('#type').change(function(){
+            var s = $('#type');
+            //$('#query_input').focus();
+            if (s.val() == 'people') {
+                $('#query_input').attr('placeholder', 'Search people e.g.: bo wang');
+            } else if (s.val() == 'publication') {
+                $('#query_input').attr('placeholder', 'Search publication');
+            }
         });
     };
 

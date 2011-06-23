@@ -122,7 +122,7 @@ public class APIServlet extends HttpServlet {
 
                 url = url + "/search-publication?";
                 String q = request.getParameter("q");
-                url = url + "q=" + q + "&u=tangwb06&start=1&num=1000";
+                url = url + "q=" + URLEncoder.encode(q) + "&u=tangwb06&start=1&num=5000";
                 String rs = HttpTest.sendURL(url);
 
                 int []pubNum = new int[num];
@@ -151,7 +151,9 @@ public class APIServlet extends HttpServlet {
                 );
                 new JSONObject().put("err", 0)
                                 .put("data", result)
+                                .put("url", url)
                                 .put("time_elapsed", ret.getDouble("TimeElapsed"))
+                                .put("result_count", ret.getInt("TotalResultCount"))
                                 .write(response.getWriter());
 
             } else if (api.equalsIgnoreCase("person")) {
@@ -201,6 +203,7 @@ public class APIServlet extends HttpServlet {
                                 .put("data", result)
                                 .put("name", person.getString("Name"))
                                 .put("photo", person.getString("PictureUrl"))
+                                .put("url", url)
                                 .write(response.getWriter());
             } else {
                 new JSONObject().put("err", -3)
