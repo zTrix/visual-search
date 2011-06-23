@@ -2,7 +2,7 @@
 
 (function($, name) {
     var api = window[name] = {};
-    var get_method = 'person searchconf'.split(' ');
+    var get_method = 'person publication searchconf'.split(' ');
 
     $(get_method).each(function(i, e) {
         api[e] = function(param) {

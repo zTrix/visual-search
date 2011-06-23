@@ -115,6 +115,45 @@ public class APIServlet extends HttpServlet {
                 new JSONObject().put("err", 0)
                                 .put("result", result_array)
                                 .write(response.getWriter());
+            } else if (api.equalsIgnoreCase("publication")) {
+                int startyear = Integer.parseInt(request.getParameter("start_year"));
+                int endyear = Integer.parseInt(request.getParameter("end_year"));
+                int num = endyear - startyear + 1;
+
+                url = url + "/search-publication?";
+                String q = request.getParameter("q");
+                url = url + "q=" + q + "&u=tangwb06&start=1&num=1000";
+                String rs = HttpTest.sendURL(url);
+
+                int []pubNum = new int[num];
+                int []citeNum = new int[num];
+
+                JSONObject ret = new JSONObject(rs);
+                JSONArray papers = ret.getJSONArray("Results");
+                for (int i = 0; i < papers.length(); i++) {
+                    JSONObject cur_paper = papers.getJSONObject(i);
+                    if (cur_paper.has("Pubyear")) {
+                        int pubyear = cur_paper.getInt("Pubyear");
+                        if (pubyear <= endyear && pubyear >= startyear) {
+                            pubNum[pubyear - startyear]++;
+                            if (cur_paper.has("Citedby")) {
+                                citeNum[pubyear - startyear] += cur_paper.getInt("Citedby");
+                            }
+                        }
+                    }
+                }
+                JSONArray result = new JSONArray();
+                result.put(new JSONObject().put("name", "Publication Number")
+                                           .put("data", new JSONArray(pubNum))
+                );
+                result.put(new JSONObject().put("name", "Citation Number")
+                                           .put("data", new JSONArray(citeNum))
+                );
+                new JSONObject().put("err", 0)
+                                .put("data", result)
+                                .put("time_elapsed", ret.getDouble("TimeElapsed"))
+                                .write(response.getWriter());
+
             } else if (api.equalsIgnoreCase("person")) {
                 int startyear = Integer.parseInt(request.getParameter("start_year"));
                 int endyear = Integer.parseInt(request.getParameter("end_year"));
@@ -169,8 +208,8 @@ public class APIServlet extends HttpServlet {
                                 .write(response.getWriter());
             }
 
-        } catch (JSONException e) {
-            response.getWriter().write("{\"err\":-2,\"msg\":\"json exception\",\"desc\":\"" + Stringer.escapeStringForJson(e.getMessage()) + "\",\"req_url\":\"" + Stringer.escapeStringForJson(url) + "\"}");
+        } catch (Exception e) {
+            response.getWriter().write("{\"err\":-2,\"msg\":\"exception\",\"desc\":\"" + Stringer.escapeStringForJson(e.toString()) + "\",\"req_url\":\"" + Stringer.escapeStringForJson(url) + "\"}");
             e.printStackTrace();
         }
         response.getWriter().flush();
