@@ -1,11 +1,13 @@
 (function($) {
     var chart;
-    var total_year = 10;
-    var end_year = 2011;
-    var categories = [];
-    for (var i = total_year - 1; i >= 0; i--) {
-        categories.push('' + (end_year - i));
-    }
+
+    var category_array = function(st, ed) {
+        var ret = [];
+        for (var i = st ; i <= ed; i++) {
+            ret.push('' + i);
+        }
+        return ret;
+    };
 
     var create_chart = function(option) {
         var defaults = {
@@ -67,11 +69,13 @@
         $('#search').submit(function(e) {
             e.preventDefault();
             if ($('#query_input').val().length == 0) return;
+            var start_year = +($('#start-year').val());
+            var end_year = +($('#end-year').val());
             $('#loading').css('opacity', 1);
             if ($('#type').val() == 'people') {
                 API.person({
                     q: $('#query_input').val(),
-                    start_year: end_year - total_year + 1,
+                    start_year: start_year,
                     end_year: end_year
                 }).success(function(r) {
                     $('#graph').css('opacity', 1);
@@ -80,14 +84,14 @@
                         title: r.name,
                         subtitle: 'personal publication and citation number trend',
                         data: r.data,
-                        categories: categories
+                        categories: category_array(start_year, end_year)
                     });
                 });
             } else if ($('#type').val() == 'publication') {
                 var query = $('#query_input').val();
                 API.publication({
                     q: query,
-                    start_year: end_year - total_year + 1,
+                    start_year: start_year,
                     end_year: end_year
                 }).success(function(r) {
                     $('#graph').css('opacity', 1);
@@ -96,7 +100,7 @@
                         title: query,
                         subtitle: 'publication and citation number trend',
                         data: r.data,
-                        categories: categories
+                        categories: category_array(start_year, end_year)
                     });
                 });
             }
@@ -116,6 +120,9 @@
     $(document).ready(function() {
         $('#loading').css('opacity', 0);
         attach_event();
+        create_chart();
+        $('#start-year').val(2002);
+        $('#end-year').val(2010);
     });
     
 })(jQuery);

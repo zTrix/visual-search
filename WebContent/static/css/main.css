@@ -2,6 +2,7 @@
 #wrapper {
     width: 560px;
     margin: auto;
+    position: relative;
 }
 
 #wrapper #search {
@@ -34,7 +35,16 @@
 }
 
 #loading {
-    position: relative;
+    position: absolute;
     left: 246px;
-    top: -177px;
+    top: 177px;
+}
+
+#edge-editor {
+    margin: 20px auto 0;
+}
+
+#edge-editor input {
+    width: 60px;
+    margin: 0 10px;
 }
