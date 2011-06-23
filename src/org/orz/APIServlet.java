@@ -58,8 +58,8 @@ public class APIServlet extends HttpServlet {
 
         try {
             if (api.equalsIgnoreCase("SearchConf")) {
-                int startyear = Integer.parseInt(request.getParameter("startyear"));
-                int endyear = Integer.parseInt(request.getParameter("endyear"));
+                int startyear = Integer.parseInt(request.getParameter("start_year"));
+                int endyear = Integer.parseInt(request.getParameter("end_year"));
                 String detail = request.getParameter("detail");
                 int result[] = new int[endyear - startyear + 1];
                 int detail_info[][] = new int[endyear - startyear + 1][100];

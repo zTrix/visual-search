@@ -4,7 +4,7 @@
     var end_year = 2011;
     var categories = [];
     for (var i = total_year - 1; i >= 0; i--) {
-        categories.push('' + (end_year - total_year));
+        categories.push('' + (end_year - i));
     }
 
     var create_chart = function(option) {
@@ -74,7 +74,7 @@
             }).success(function(r) {
                 create_chart({
                     title: r.name,
-                    subtitle: 'personal publication and citation number graph',
+                    subtitle: 'personal publication and citation number trend',
                     data: r.data,
                     categories: categories
                 });
