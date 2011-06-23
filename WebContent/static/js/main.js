@@ -17,7 +17,6 @@
             categories: []
         };
         $.extend(defaults, option);
-        console.log(defaults);
         
         chart = new Highcharts.Chart({
             chart: {
@@ -113,6 +112,14 @@
                 $('#query_input').attr('placeholder', 'Search people e.g.: bo wang');
             } else if (s.val() == 'publication') {
                 $('#query_input').attr('placeholder', 'Search publication');
+            }
+        });
+
+        $('#edge-editor input').keydown(function(e) {
+            if (e.which == 38) {    // up
+                $(this).val(+$(this).val() + 1);
+            } else if (e.which == 40) { // down
+                $(this).val(+$(this).val() - 1);
             }
         });
     };
