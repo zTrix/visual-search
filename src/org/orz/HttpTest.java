@@ -28,8 +28,7 @@ public class HttpTest {
             InputStream in = urlConnection.getInputStream();
             BufferedReader rd = new BufferedReader(new InputStreamReader(in));
             
-            while((tmp = rd.readLine()) != null)
-            {
+            while((tmp = rd.readLine()) != null) {
                 result = result + tmp;
             }
         } catch (Exception e) {

@@ -7,7 +7,13 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -205,6 +211,68 @@ public class APIServlet extends HttpServlet {
                                 .put("photo", person.getString("PictureUrl"))
                                 .put("url", url)
                                 .write(response.getWriter());
+            } else if(api.equalsIgnoreCase("conf")) {
+                url = url + "/search-publication?";
+                String q = request.getParameter("q");
+                url = url + "q=" + URLEncoder.encode(q) + "&u=tangwb06&start=1&num=5000";
+                
+                JSONObject tmp = new JSONObject(HttpTest.sendURL(url));
+                JSONArray papers = tmp.getJSONArray("Results");
+                Map statistics = new HashMap<String,Integer>();
+
+                for(int i = 0; i < papers.length(); i++) {
+                    String confname;;
+                    JSONObject cur_paper = papers.getJSONObject(i);
+                    if (cur_paper.has("Jconfname")) {
+                        confname = cur_paper.getString("Jconfname");
+                        //remove the (*) pattern from conference name
+                        int left = confname.indexOf('(');
+                        int right = confname.indexOf(")");
+                        if(left != -1 && right != -1) {
+                            String tmp_conf = confname.substring(0,left);
+                            confname = new String(tmp_conf);
+                        }
+                        Integer value;
+                        if((value = (Integer)statistics.get(confname)) != null) {
+                            Integer new_value = new Integer(value.intValue() + 1);
+                            statistics.put(confname, new_value);
+                        } else {
+                            statistics.put(confname, new Integer(1));
+                        }
+                    }
+                }
+
+                List<Map.Entry<String, Integer>> forSort = new ArrayList<Map.Entry<String, Integer>>(statistics.entrySet());
+
+                Collections.sort(forSort, new Comparator<Map.Entry<String, Integer>>() {
+                    public int compare(Map.Entry<String, Integer> o1,Map.Entry<String, Integer> o2) {
+                        return (o2.getValue() - o1.getValue());
+                    }
+                });
+
+                JSONArray confname = new JSONArray();
+                JSONArray data = new JSONArray();
+
+                for (int i = 0; i < forSort.size() && i < 20; i++) {
+                    confname.put(forSort.get(i).getKey());
+                    data.put(forSort.get(i).getValue());
+                }
+/*
+                Iterator it= statistics.keySet().iterator();
+                JSONArray confname = new JSONArray();
+                JSONArray data = new JSONArray();
+                while(it.hasNext())
+                {
+                    Object key = it.next();
+                    confname.put((String)key);
+                    data.put(((Integer)statistics.get(key)).intValue());
+                }
+*/
+                
+                new JSONObject().put("data",data)
+                                .put("confname",confname)
+                                .write(response.getWriter());
+                
             } else {
                 new JSONObject().put("err", -3)
                                 .put("msg", "no such api: " + api)
