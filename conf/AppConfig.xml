@@ -13,18 +13,6 @@
 				<width>560</width>
 				<height>500</height>
 			</page>
-			<page>
-				<type>medium</type>
-				<path>main.html</path>
-				<width>300</width>
-				<height>100</height>
-			</page>
-			<page>
-				<type>small</type>
-				<path>main.html</path>
-				<width>300</width>
-				<height>100</height>
-			</page>
 		</pages>
 
 		<authors>

@@ -221,7 +221,7 @@ public class APIServlet extends HttpServlet {
                 Map statistics = new HashMap<String,Integer>();
 
                 for(int i = 0; i < papers.length(); i++) {
-                    String confname;;
+                    String confname;
                     JSONObject cur_paper = papers.getJSONObject(i);
                     if (cur_paper.has("Jconfname")) {
                         confname = cur_paper.getString("Jconfname");
