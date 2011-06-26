@@ -134,6 +134,18 @@
        });
     };
 
+    var start_time = 0;
+    var end_time = 0;
+
+    var finish_loading = function() {
+        $('#graph').css('opacity',1);
+        $('#loading').css('opacity',0);
+        end_time = new Date();
+        var duration = end_time - start_time;
+        $('#elapsed').text('time elapsed: ' + duration + 'ms');
+        $('#elapsed').css('opacity', 1);
+    };
+
     var attach_event = function() {
         $('#search').submit(function(e) {
             e.preventDefault();
@@ -141,14 +153,15 @@
             var start_year = +($('#start-year').val());
             var end_year = +($('#end-year').val());
             $('#loading').css('opacity', 1);
+            start_time = new Date();
+            $('#elapsed').css('opacity', 0);
             if ($('#type').val() == 'people') {
                 API.person({
                     q: $('#query_input').val(),
                     start_year: start_year,
                     end_year: end_year
                 }).success(function(r) {
-                    $('#graph').css('opacity', 1);
-                    $('#loading').css('opacity', 0);
+                    finish_loading();
                     create_chart({
                         title: r.name,
                         subtitle: 'personal publication and citation number trend',
@@ -163,8 +176,7 @@
                     start_year: start_year,
                     end_year: end_year
                 }).success(function(r) {
-                    $('#graph').css('opacity', 1);
-                    $('#loading').css('opacity', 0);
+                    finish_loading();
                     create_chart({
                         title: query,
                         subtitle: 'publication and citation number trend',
@@ -177,8 +189,7 @@
                 API.conf({
                     q: query
                 }).success(function(r) {
-                    $('#graph').css('opacity',1);
-                    $('#loading').css('opacity',0);
+                    finish_loading();
                     create_chart_x({
                         title: query,
                         subtitle: 'publication distribution for a given topic',
@@ -216,6 +227,7 @@
         create_chart();
         $('#start-year').val(2002);
         $('#end-year').val(2010);
+        $('#elapsed').css('opacity', 0);
     });
     
 })(jQuery);

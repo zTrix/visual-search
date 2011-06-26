@@ -6,7 +6,7 @@
 }
 
 #wrapper #search {
-    margin: 30px auto;
+    margin: 30px auto 0;
 }
 
 #wrapper #graph {
@@ -47,4 +47,10 @@
 #edge-editor input {
     width: 60px;
     margin: 0 10px;
+}
+
+#elapsed {
+    margin: 15px 50px 10px;
+    position: relative;
+    left: 337px;
 }
